@@ -326,11 +326,14 @@ HT6022_ErrorTypeDef HT6022_ReadData (HT6022_DeviceTypeDef *Device,
 	   
 	   data = (unsigned char*) malloc (sizeof(unsigned char)*DataSize*2);
 	   if (data == 0)
-	   		return HT6022_ERROR_NO_MEM;
+	   	return HT6022_ERROR_NO_MEM;
 
   	   if ((!IS_HT6022_DATASIZE (DataSize)) || (Device == NULL) ||  (CH1 == NULL) ||  (CH2 == NULL))
-			return HT6022_ERROR_INVALID_PARAM;
-	   
+  	   {
+  	   	free(data);
+		return HT6022_ERROR_INVALID_PARAM;
+  	   }
+  	   
 	   *data = HT6022_READ_CONTROL_DATA;
 	   r = libusb_control_transfer (Device->DeviceHandle, 
 				        HT6022_READ_CONTROL_REQUEST_TYPE, 
@@ -344,6 +347,7 @@ HT6022_ErrorTypeDef HT6022_ReadData (HT6022_DeviceTypeDef *Device,
 	  {
 		if (r != HT6022_ERROR_NO_DEVICE)
 			r = HT6022_ERROR_OTHER;
+		free(data);
 		return r;
 	  }
 	
@@ -358,6 +362,7 @@ HT6022_ErrorTypeDef HT6022_ReadData (HT6022_DeviceTypeDef *Device,
 	  {
 		if (r != HT6022_ERROR_NO_DEVICE && r != HT6022_ERROR_TIMEOUT)
 			r = HT6022_ERROR_OTHER;
+		free(data);
 		return r;
 	  } 
 	  
@@ -370,7 +375,6 @@ HT6022_ErrorTypeDef HT6022_ReadData (HT6022_DeviceTypeDef *Device,
 	  }
 	  
 	  free (data);
-
 	  return HT6022_SUCCESS;
 
 }
